@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mahata Online Shop</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      color: #222;
+    }
+
+    header {
+      background: #087f5b;
+      color: white;
+      padding: 20px 15px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 25px;
+    }
+
+    header p {
+      margin: 0;
+    }
+
+    .search {
+      padding: 15px;
+      background: white;
+    }
+
+    .search input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .categories {
+      display: flex;
+      gap: 10px;
+      padding: 15px;
+      overflow-x: auto;
+    }
+
+    .categories button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 20px;
+      background: white;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .categories button.active {
+      background: #087f5b;
+      color: white;
+    }
+
+    h2 {
+      padding: 0 15px;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      padding: 15px;
+    }
+
+    .product {
+      background: white;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 2px 6px #00000010;
+    }
+
+    .product img {
+      width: 100%;
+      height: 125px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #eee;
+    }
+
+    .product h3 {
+      font-size: 15px;
+      margin: 10px 0 5px;
+    }
+
+    .price {
+      color: #087f5b;
+      font-weight: bold;
+    }
+
+    .old-price {
+      color: #888;
+      text-decoration: line-through;
+      font-size: 13px;
+    }
+
+    .product button {
+      width: 100%;
+      padding: 10px;
+      background: #087f5b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+
+    .empty {
+      text-align: center;
+      grid-column: 1 / -1;
+      padding: 20px;
+    }
+
+    .cart {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 13px;
+      background: white;
+      box-shadow: 0 -2px 10px #00000015;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart button {
+      background: #f08c00;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+    }
+
+    main {
+      padding-bottom: 85px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🛍️ Mahata Online Shop</h1>
+  <p>আপনার পছন্দের পণ্য, আপনার কাছেই!</p>
+</header>
+
+<div class="search">
+  <input
+    type="search"
+    id="search"
+    placeholder="🔍 পণ্যের নাম লিখে খুঁজুন..."
+  >
+</div>
+
+<div class="categories">
+  <button class="active" onclick="filterCategory('সব')">সব পণ্য</button>
+  <button onclick="filterCategory('জামাকাপড়')">👕 জামাকাপড়</button>
+  <button onclick="filterCategory('কসমেটিক')">💄 কসমেটিক</button>
+  <button onclick="filterCategory('মুদি')">🛒 মুদি</button>
+</div>
+
+<main>
+  <h2>আমাদের পণ্য</h2>
+  <div class="products" id="products"></div>
+</main>
+
+<div class="cart">
+  <strong>🛒 কার্ট: <span id="cartCount">0</span>টি</strong>
+  <button onclick="showCart()">কার্ট দেখুন</button>
+</div>
+
+<script>
+  const items = [
+    {
+      id: 1,
+      name: "টি-শার্ট",
+      category: "জামাকাপড়",
+      price: 350,
+      oldPrice: 450,
+      image: "https://placehold.co/300x200?text=T-Shirt"
+    },
+    {
+      id: 2,
+      name: "ফেস ক্রিম",
+      category: "কসমেটিক",
+      price: 180,
+      oldPrice: 220,
+      image: "https://placehold.co/300x200?text=Face+Cream"
+    },
+    {
+      id: 3,
+      name: "চালের প্যাকেট",
+      category: "মুদি",
+      price: 250,
+      oldPrice: 280,
+      image: "https://placehold.co/300x200?text=Rice"
+    },
+    {
+      id: 4,
+      name: "শার্ট",
+      category: "জামাকাপড়",
+      price: 500,
+      oldPrice: 600,
+      image: "https://placehold.co/300x200?text=Shirt"
+    },
+    {
+      id: 5,
+      name: "ফেসওয়াশ",
+      category: "কসমেটিক",
+      price: 150,
+      oldPrice: 180,
+      image: "https://placehold.co/300x200?text=Face+Wash"
+    },
+    {
+      id: 6,
+      name: "সরষের তেল",
+      category: "মুদি",
+      price: 140,
+      oldPrice: 160,
+      image: "https://placehold.co/300x200?text=Oil"
+    }
+  ];
+
+  let cart = [];
+  let selectedCategory = "সব";
+
+  function renderProducts() {
+    const search = document.getElementById("search")
+      .value.toLowerCase();
+
+    const filtered = items.filter(item => {
+      const matchCategory =
+        selectedCategory === "সব" ||
+        item.category === selectedCategory;
+
+      const matchSearch =
+        item.name.toLowerCase().includes(search);
+
+      return matchCategory && matchSearch;
+    });
+
+    const container = document.getElementById("products");
+
+    if (filtered.length === 0) {
+      container.innerHTML =
+        '<div class="empty">কোনো পণ্য পাওয়া যায়নি।</div>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(item => `
+      <div class="product">
+        <img
+          src="${item.image}"
+          alt="${item.name}"
+          loading="lazy"
+        >
+        <h3>${item.name}</h3>
+        <div>
+          <span class="price">₹${item.price}</span>
+          <span class="old-price">₹${item.oldPrice}</span>
+        </div>
+        <button onclick="addToCart(${item.id})">
+          🛒 কার্টে যোগ করুন
+        </button>
+      </div>
+    `).join("");
+  }
+
+  function filterCategory(category) {
+    selectedCategory = category;
+
+    document.querySelectorAll(".categories button")
+      .forEach(button => {
+        button.classList.toggle(
+          "active",
+          button.textContent.includes(
+            category === "সব" ? "সব পণ্য" : category
+          )
+        );
+      });
+
+    renderProducts();
+  }
+
+  function addToCart(id) {
+    const item = items.find(product => product.id === id);
+    cart.push(item);
+
+    document.getElementById("cartCount").textContent =
+      cart.length;
+
+    alert(item.name + " কার্টে যোগ হয়েছে!");
+  }
+
+  function showCart() {
+    if (cart.length === 0) {
+      alert("আপনার কার্ট খালি।");
+      return;
+    }
+
+    const total = cart.reduce(
+      (sum, item) => sum + item.price, 0
+    );
+
+    alert(
+      "আপনার কার্টে " + cart.length +
+      "টি পণ্য আছে।\nমোট দাম: ₹" + total +
+      "\n\nপরবর্তী ধাপে Checkout যোগ করা হবে।"
+    );
+  }
+
+  document.getElementById("search")
+    .addEventListener("input", renderProducts);
+
+  renderProducts();
+</script>
+
+</body>
+</html>
